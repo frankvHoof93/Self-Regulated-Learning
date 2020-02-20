@@ -1,0 +1,48 @@
+variables:
+  SOLUTION_NAME: "SelfRegulatedLearningHackaton"
+  PROJECT_NAME_AI: "AIService"
+  PROJECT_NAME_CANVAS_DATA: "CanvasDataCollector"
+  PROJECT_NAME_CANVAS_MOCK: "CanvasMock"
+  PROJECT_NAME_FEEDBACK: "FeedbackService"
+  PROJECT_NAME_FRONT_END: "Frontend"
+  PROJECT_NAME_GATEWAY: "Gateway"
+  PROJECT_NAME_MOCK_API: "MockApi"
+  USER_NAME: "I406981"
+  REPO_NAME: "self-regulated-learning-hackaton"
+stages:
+  - build
+  - test
+  - publish
+  - run
+  - build_docker
+build:
+  stage: build
+  script:
+  - echo "Building Release Version"
+  - dotnet restore "$SOLUTION_NAME".sln
+  - dotnet build "$SOLUTION_NAME".sln -c Release
+test:
+  stage: test
+  script:
+  - echo "Running Tests"
+  - dotnet test "$SOLUTION_NAME".sln -c Release
+  dependencies:
+  - build
+publish:
+  stage: publish
+  script:
+  - echo "Publishing"
+  - dotnet publish "$SOLUTION_NAME".sln -c Release
+  dependencies:
+  - build
+  - test
+
+build_docker:
+  stage: build_docker
+  image: docker/compose:latest
+  services:
+  - docker:dind
+  script:
+  - docker-compose build --parallel
+  dependencies:
+  - publish
