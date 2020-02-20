@@ -24,11 +24,5 @@ jobs:
         dotnet-version: 3.1.102
     - name: Build with dotnet
       run: dotnet build --configuration Release
-  
-  publish:    
-    
-    runs-on: ubuntu-latest
-
-    steps:
     - name: Publish with dotnet
       run: dotnet publish -c Release -o SelfRegulatedLearningHackaton
