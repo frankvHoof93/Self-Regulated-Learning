@@ -1,0 +1,66 @@
+version: "3.7"
+  
+services:
+  rabbit:
+    image: rabbitmq:3-management
+    
+  postgres:
+    image: postgres:11-alpine
+
+  feedback-service:
+    build:
+      context: .
+      dockerfile: FeedbackService/Dockerfile
+    depends_on:
+      - postgres
+      - rabbit
+    restart: always
+  
+  gateway:
+    build:
+      context: .
+      dockerfile: Gateway/Dockerfile
+    ports:
+    - 5000:80
+    depends_on:
+      - feedback-service
+      - canvas-data-collector
+      - postgres
+    restart: always
+  
+  canvas-data-collector:
+    build:
+      context: .
+      dockerfile: CanvasDataCollector/Dockerfile
+    depends_on:
+      - feedback-service
+      - rabbit
+      - ai-service
+    restart: always
+  
+  ai-service:
+    build:
+      context: .
+      dockerfile: AIService/Dockerfile
+    depends_on:
+      - rabbit
+    restart: always
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: DockerFile
+    depends_on:
+      - gateway
+    ports: 
+      - 3001:80
+    restart: always
+    
+  mock:
+    build:
+      context: .
+      dockerfile: MockApi/Dockerfile
+    depends_on:
+      - gateway
+    restart: always
+    
